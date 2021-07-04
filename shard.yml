@@ -1,0 +1,12 @@
+name: crunits
+version: 1.0.0
+crystal: ">= 1.0.0"
+
+authors:
+  - Stephen von Takach <steve@vontaka.ch>
+
+development_dependencies:
+  ameba:
+    github: veelenga/ameba
+
+license: MIT
