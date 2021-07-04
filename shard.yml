@@ -5,6 +5,10 @@ crystal: ">= 1.0.0"
 authors:
   - Stephen von Takach <steve@vontaka.ch>
 
+dependencies:
+  pars:
+    github: place-labs/pars
+
 development_dependencies:
   ameba:
     github: veelenga/ameba
