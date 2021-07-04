@@ -3,20 +3,29 @@ require "./unit"
 class Units::Scale
   include Compatible
 
-  def initialize(value : BigDecimal, @unit : Unit = Unit.new)
-    @value = value
+  def initialize(@value : BigDecimal, @unit : Unit = Unit.new)
   end
 
-  def initialize(value : BigDecimal, @unit : Unit = Unit.new)
+  def initialize(@value : BigDecimal, unit : String, search : Mode = Mode::PrimaryCode)
+    @unit = Unit.new(unit, search)
+  end
+
+  def initialize(value : Number | String, @unit : Unit = Unit.new)
     @value = BigDecimal.new(value)
   end
 
-  def initialize(value : Number, @unit : Unit = Unit.new)
+  def initialize(value : Number | String, unit : String, search : Mode = Mode::PrimaryCode)
     @value = BigDecimal.new(value)
+    @unit = Unit.new(unit, search)
   end
 
   # return a ScaleFunction version of scale
-  def self.new(function_code : String | ScaleFunction::FunctionSelection, value, unit = Unit.new)
+  def self.new(function_code : String | ScaleFunction::FunctionSelection, value : Number | String, unit : Unit = Unit.new)
+    Units::ScaleFunction.new(function_code, value, unit)
+  end
+
+  def self.new(function_code : String | ScaleFunction::FunctionSelection, value : Number | String, unit : String, search : Mode = Mode::PrimaryCode)
+    unit = Unit.new(unit, search)
     Units::ScaleFunction.new(function_code, value, unit)
   end
 

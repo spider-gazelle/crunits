@@ -16,7 +16,7 @@ module Units
     Divide
   end
 
-  class ExpressionError < ArgumentError
+  class ExpressionError < Exception
   end
 
   class ConversionError < TypeCastError

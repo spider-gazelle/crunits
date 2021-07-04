@@ -11,10 +11,8 @@ class Units::Unit
     @terms = [term]
   end
 
-  def initialize(unit : String, search : Mode = Mode::PrimaryCode)
-    # TODO:: needs to be able to work with composed terms
-    term = Units::Term.new(atom: Atom.find(unit, search).not_nil!)
-    @terms = [term]
+  def self.new(unit : String, search : Mode = Mode::PrimaryCode)
+    ExpressionParser.parse_expression(unit, search)
   end
 
   getter terms : Array(Term)

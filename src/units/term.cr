@@ -68,7 +68,11 @@ class Units::Term
   end
 
   def **(other : Number)
-    Term.new(atom, prefix, factor, exponent ** other, note)
+    if other < 0
+      Term.new(atom, prefix, factor, exponent.to_f ** other, note)
+    else
+      Term.new(atom, prefix, factor, exponent ** other, note)
+    end
   end
 
   def *(other : Unit | Term | Number)

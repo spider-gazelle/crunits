@@ -48,13 +48,28 @@ module Units::ExpressionParser
     in .secondary_code?
       all.map(&.secondary_code.reverse).sort! { |a, b| b <=> a }.map { |atom| Parse.string(atom) }.reduce { |p1, p2| p1 | p2 }.map &.reverse
     in .symbol?
-      all.map(&.symbol.reverse).sort! { |a, b| b <=> a }.map { |atom| Parse.string(atom) }.reduce { |p1, p2| p1 | p2 }.map &.reverse
+      all.compact_map(&.symbol.try(&.reverse)).sort! { |a, b| b <=> a }.map { |atom| Parse.string(atom) }.reduce { |p1, p2| p1 | p2 }.map &.reverse
     in .name?
       all.map(&.name.first.reverse).sort! { |a, b| b <=> a }.map { |atom| Parse.string(atom) }.reduce { |p1, p2| p1 | p2 }.map &.reverse
     end
   end
 
+  # ameba:disable Metrics/CyclomaticComplexity
   def self.parse_term(term : String, mode : Mode) : Term
+    # as `/m` is a valid unit string
+    return Term.new if term.empty?
+    rev_term = term.reverse
+
+    # terms can be an number all on their own
+    check_number = number &+ ((Parse.char_if { true }) * (0..1))
+    number_result = check_number.parse(rev_term)
+    if !number_result.is_a?(Pars::ParseError)
+      if number_result[1].first?.nil?
+        return Term.new(factor: number_result[0])
+      end
+    end
+
+    # Search for the atom
     atom = atom(mode)
     prefix = case mode
              in .primary_code?
@@ -67,13 +82,13 @@ module Units::ExpressionParser
                prefix_name
              end
     expression = (notation * (0..1)) &+ (integer * (0..1)) &+ atom &+ (prefix * (0..1)) &+ (integer * (0..1))
-    result = expression.parse(term.reverse)
+    result = expression.parse(rev_term)
     raise ExpressionError.new("failed to parse term '#{term}' with #{result}") if result.is_a?(Pars::ParseError)
     notes, exponent, atom_string, prefix_arr, factor = result
 
     prefix_string = prefix_arr.first?
     Term.new(
-      Atom.find(atom_string),
+      Atom.find(atom_string, mode),
       prefix_string ? Prefix.find(prefix_string).not_nil! : Prefix::None,
       factor.first? || 1,
       exponent.first? || 1,
@@ -84,11 +99,12 @@ module Units::ExpressionParser
   def self.parse_expression(expression : String, mode : Mode = Mode::PrimaryCode) : Unit
     # Extract all the terms and the applied operations
     terms = [] of Tuple(String, String)
+    processing = expression
     loop do
-      first_term, operator, remaining = expression.partition(/\.|\//)
+      first_term, operator, remaining = processing.partition(/\.|\//)
       terms << {first_term, operator}
       break if operator.empty?
-      expression = remaining
+      processing = remaining
     end
 
     # Apply the operations to all the terms, generating a unit
@@ -109,5 +125,7 @@ module Units::ExpressionParser
       operator = next_op
     end
     unit
+  rescue error
+    raise ExpressionError.new("expression parsing failed for expression: '#{expression}', term: #{term_string}, op: #{operator}, mode: #{mode}", cause: error)
   end
 end

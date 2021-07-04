@@ -45,7 +45,7 @@ class Units::Atom
   @classification : String?
 
   getter name : Array(String)
-  getter symbol : String
+  getter symbol : String?
   getter primary_code : String
   getter secondary_code : String
   getter property : String
@@ -85,29 +85,3 @@ class Units::Atom
 end
 
 require "./data/base_units"
-
-Units::Atom.new(
-  "inch",
-  "in",
-  "[in_i]",
-  "[IN_I]",
-  "length",
-  Units::Scale.new(
-    2.54,
-    Units::Unit.new(Units::Term.new(Units::Atom.find("m"), Units::Prefix::Centi))
-  ),
-  metric: false
-).register
-
-Units::Atom.new(
-  "the number pi",
-  "π",
-  "[pi]",
-  "[pi]",
-  "number",
-  Units::Scale.new(
-    BigDecimal.new("3.141592653589793238462643383279502884197169399375105820974944592307816406286208998628034825"),
-    Units::Unit.new
-  ),
-  metric: false
-).register
