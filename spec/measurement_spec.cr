@@ -44,7 +44,6 @@ module Units
     kmh = Measurement.new(100, "km/h")
     mile = Measurement.new(3, "[mi_i]")
     hpm = Measurement.new(6, "h/[mi_i]")
-    cui = Measurement.new(12, "[in_i]3")
     cel = Measurement.new(22, "Cel")
     k = Measurement.new(373.15, "K")
     f = Measurement.new(98.6, "[degF]")
