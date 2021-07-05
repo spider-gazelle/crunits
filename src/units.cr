@@ -61,6 +61,9 @@ require "./units/measurement"
 # this parses expressions like `"kg.s-1.(m/s)2"` into a `Unit`
 require "./units/expression_parser"
 
+# this generates expressions like `"kg.s-1.(m/s)2"` from a `Unit`
+require "./units/expression_generator"
+
 # The data defining the different units
 require "./units/data/prefixes"
 require "./units/data/base_units"

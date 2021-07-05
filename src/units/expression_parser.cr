@@ -55,9 +55,9 @@ module Units::ExpressionParser
   end
 
   # ameba:disable Metrics/CyclomaticComplexity
-  def self.parse_term(term : String, mode : Mode) : Term
+  def self.parse_term(term : String, mode : Mode, op : Operation) : Term
     # as `/m` is a valid unit string
-    return Term.new if term.empty?
+    return Term.new(exponent: op.divide? ? -1 : 1) if term.empty?
     rev_term = term.reverse
 
     # terms can be an number all on their own
@@ -65,7 +65,7 @@ module Units::ExpressionParser
     number_result = check_number.parse(rev_term)
     if !number_result.is_a?(Pars::ParseError)
       if number_result[1].first?.nil?
-        return Term.new(factor: number_result[0])
+        return Term.new(factor: number_result[0], exponent: op.divide? ? -1 : 1)
       end
     end
 
@@ -86,12 +86,16 @@ module Units::ExpressionParser
     raise ExpressionError.new("failed to parse term '#{term}' with #{result}") if result.is_a?(Pars::ParseError)
     notes, exponent, atom_string, prefix_arr, factor = result
 
+    # NOTE:: This fails to handle things like `kg/s-1` (not sure if this is really required)
+    exponent_value = exponent.first? || 1
+    exponent_value = -exponent_value if op.divide? && exponent_value > 0
+
     prefix_string = prefix_arr.first?
     Term.new(
       Atom.find(atom_string, mode),
       prefix_string ? Prefix.find(prefix_string).not_nil! : Prefix::None,
       factor.first? || 1,
-      exponent.first? || 1,
+      exponent_value,
       notes.first?
     )
   end
@@ -109,7 +113,7 @@ module Units::ExpressionParser
 
     # Apply the operations to all the terms, generating a unit
     term_string, operator = terms.shift
-    unit = Unit.new(parse_term term_string, mode)
+    parsed_terms = [parse_term(term_string, mode, Operation::Multiply)]
     loop do
       break if operator.empty?
       term_string, next_op = terms.shift
@@ -121,10 +125,10 @@ module Units::ExpressionParser
            else
              raise ExpressionError.new("invalid operator #{operator}")
            end
-      unit = unit.operate(op, parse_term term_string, mode)
+      parsed_terms << parse_term(term_string, mode, op)
       operator = next_op
     end
-    unit
+    Unit.new(parsed_terms)
   rescue error
     raise ExpressionError.new("expression parsing failed for expression: '#{expression}', term: #{term_string}, op: #{operator}, mode: #{mode}", cause: error)
   end

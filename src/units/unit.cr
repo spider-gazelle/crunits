@@ -1,6 +1,6 @@
 require "./term"
 
-class Units::Unit
+struct Units::Unit
   include Compatible
 
   def initialize(@terms : Array(Term) = [] of Term)
@@ -16,8 +16,6 @@ class Units::Unit
   end
 
   getter terms : Array(Term)
-  getter expression : String { "todo" }
-
   getter? special : Bool { terms.size == 1 && terms[0].special? }
   getter depth : Int32 { terms.map(&.depth).max + 1 }
   getter root_terms : Array(Term) { terms.flat_map(&.root_terms) }
@@ -61,5 +59,13 @@ class Units::Unit
     in Number
       Unit.new(self.terms.map &.operate(operator, other).as(Term))
     end
+  end
+
+  def to_s(mode : Mode = Mode::PrimaryCode)
+    ExpressionGenerator.new(@terms, mode).expression
+  end
+
+  def to_s(io : IO) : Nil
+    io << to_s
   end
 end

@@ -1,9 +1,11 @@
-class Units::Multiset(T)
+struct Units::Multiset(T)
   def initialize
     @hash = Hash(T, Int32).new { |hash, key| hash[key] = 0 }
   end
 
-  def add(key : T, count : Number) : Int32
+  getter hash
+
+  def add(key : T, count : Number)
     count = count.to_i
     current = @hash[key]
     current += count
@@ -12,7 +14,7 @@ class Units::Multiset(T)
     else
       @hash[key] = current
     end
-    current
+    self
   end
 
   def multiplicity(key : T) : Int32

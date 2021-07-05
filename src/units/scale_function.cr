@@ -15,6 +15,8 @@ class Units::ScaleFunction < Units::Scale
   getter function : FunctionSelection
 
   module Functions
+    extend self
+
     KELVIN_CELSIUS_DIFF = BigDecimal.new(273.15)
 
     def to_cel(x)

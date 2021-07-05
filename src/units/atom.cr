@@ -1,4 +1,4 @@
-class Units::Atom
+struct Units::Atom
   include Compatible
 
   class_getter all : Set(Atom) = Set(Atom).new
@@ -81,6 +81,19 @@ class Units::Atom
 
   def magnitude(scalar = nil)
     special? ? scale.magnitude(scalar) : 1
+  end
+
+  def to_s(mode : Mode = Mode::PrimaryCode)
+    case mode
+    in .primary_code?
+      primary_code
+    in .secondary_code?
+      secondary_code
+    in .symbol?
+      symbol
+    in .name?
+      name.first
+    end
   end
 end
 

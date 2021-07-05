@@ -1,7 +1,7 @@
 require "./prefix"
 require "./atom"
 
-class Units::Term
+struct Units::Term
   include Compatible
 
   def initialize(

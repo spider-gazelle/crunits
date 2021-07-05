@@ -51,4 +51,19 @@ class Units::Scale
       value * unit.magnitude
     end
   end
+
+  def to_s(io, mode : Mode = Mode::PrimaryCode) : Nil
+    unit_string = unit.to_s(mode)
+    value.to_s(io)
+    if unit_string.presence && unit_string != "1"
+      io << ' '
+      io << unit_string
+    end
+  end
+
+  def inspect(io : IO) : Nil
+    io << "#<#{self.class} value="
+    value.to_s(io)
+    io << " unit=#{unit}>"
+  end
 end

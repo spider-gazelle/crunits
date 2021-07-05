@@ -1,4 +1,4 @@
-abstract class Units::Prefix
+abstract struct Units::Prefix
   def self.all
     {{ @type.all_subclasses }}
   end
@@ -22,6 +22,23 @@ abstract class Units::Prefix
 
   macro inherited
     prop name = {{@type.name.split("::")[-1].downcase}}
+
+    def self.to_s(mode : Mode = Mode::PrimaryCode)
+      case mode
+      in .primary_code?
+        primary_code
+      in .secondary_code?
+        secondary_code
+      in .symbol?
+        symbol
+      in .name?
+        name
+      end
+    end
+  end
+
+  def to_s(mode : Mode = Mode::PrimaryCode)
+    self.class.to_s(mode)
   end
 end
 
