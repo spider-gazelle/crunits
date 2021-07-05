@@ -10,7 +10,7 @@ Add this to your application's `shard.yml`:
 
 ```yaml
 dependencies:
-  jwt:
+  crunits:
     github: spider-gazelle/crunits
 ```
 
