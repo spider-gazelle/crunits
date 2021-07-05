@@ -73,6 +73,7 @@ abstract struct Units::Prefix
 
   # Special case, no prefix
   struct None < Prefix
+    prop name = ""
     prop symbol = ""
     prop primary_code = ""
     prop secondary_code = ""

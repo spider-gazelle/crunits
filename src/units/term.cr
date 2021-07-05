@@ -68,11 +68,7 @@ struct Units::Term
   end
 
   def **(other : Number)
-    if other < 0
-      Term.new(atom, prefix, factor, exponent.to_f ** other, note)
-    else
-      Term.new(atom, prefix, factor, exponent ** other, note)
-    end
+    Term.new(atom, prefix, factor, exponent * other, note)
   end
 
   def *(other : Unit | Term | Number)
@@ -87,7 +83,7 @@ struct Units::Term
     exp = operator.divide? ? -1 : 1
     case other
     in Unit
-      Unit.new([self].concat other.terms.map(&.**(exp)))
+      Unit.new(other.terms.map(&.**(exp)) << self)
     in Term
       Unit.new([self, other ** exp])
     end

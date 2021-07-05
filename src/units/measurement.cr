@@ -13,9 +13,9 @@ class Units::Measurement < Units::Scale
     @value = BigDecimal.new(value)
   end
 
-  def initialize(value : Number | String, unit : String, search : Mode = Mode::PrimaryCode)
+  def initialize(value : Number | String, unit : String, @mode : Mode = Mode::PrimaryCode)
     @value = BigDecimal.new(value)
-    @unit = Unit.new(unit, search)
+    @unit = Unit.new(unit, @mode)
   end
 
   def initialize(value : Measurement, @unit : Unit)
@@ -34,8 +34,12 @@ class Units::Measurement < Units::Scale
     end
   end
 
-  def convert_to(unit : String, search : Mode = Mode::PrimaryCode)
-    convert_to(Unit.new(unit, search))
+  def convert_to(other_unit : String, search : Mode = Mode::PrimaryCode)
+    convert_to(Unit.new(other_unit, search))
+  end
+
+  def convert_to(other_unit : Scale)
+    convert_to other_unit.unit
   end
 
   def converted_value(other_unit : Unit)
@@ -65,15 +69,17 @@ class Units::Measurement < Units::Scale
   end
 
   def *(other : Measurement | Number)
-    operate(:multiply, other)
+    operate(Operation::Multiply, other)
   end
 
   def /(other : Measurement | Number)
-    operate(:divide, other)
+    operate(Operation::Divide, other)
   end
 
-  def **(other : Number)
-    Measurement.new(value ** other, unit ** other)
+  def **(exponent : Number)
+    # https://github.com/crystal-lang/crystal/pull/10892
+    new_value = exponent < 0 ? (value.to_big_r ** exponent).to_big_d : value ** exponent
+    Measurement.new(new_value, unit ** exponent)
   end
 
   def +(other : Measurement)

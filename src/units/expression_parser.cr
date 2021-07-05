@@ -24,19 +24,23 @@ module Units::ExpressionParser
   class_getter number : Pars::Parser(Float64 | Int32) { fixnum | integer }
 
   class_getter prefix_symbol : Pars::Parser(String) do
-    Prefix.all.map(&.symbol.reverse).sort! { |a, b| b <=> a }.map { |prefix| Parse.string(prefix) }.reduce { |p1, p2| p1 | p2 }.map &.reverse
+    Prefix.all.map(&.symbol.reverse).sort! { |a, b| b.size <=> a.size }.map { |prefix| Parse.string(prefix) }.reduce { |p1, p2| p1 | p2 }.map &.reverse
   end
 
   class_getter prefix_primary : Pars::Parser(String) do
-    Prefix.all.map(&.symbol.reverse).sort! { |a, b| b <=> a }.map { |prefix| Parse.string(prefix) }.reduce { |p1, p2| p1 | p2 }.map &.reverse
+    Prefix.all.map(&.symbol.reverse).sort! { |a, b| b.size <=> a.size }.map { |prefix| Parse.string(prefix) }.reduce { |p1, p2| p1 | p2 }.map &.reverse
   end
 
   class_getter prefix_secondary : Pars::Parser(String) do
-    Prefix.all.map(&.symbol.reverse).sort! { |a, b| b <=> a }.map { |prefix| Parse.string(prefix) }.reduce { |p1, p2| p1 | p2 }.map &.reverse
+    Prefix.all.map(&.symbol.reverse).sort! { |a, b| b.size <=> a.size }.map { |prefix| Parse.string(prefix) }.reduce { |p1, p2| p1 | p2 }.map &.reverse
   end
 
   class_getter prefix_name : Pars::Parser(String) do
-    Prefix.all.map(&.symbol.reverse).sort! { |a, b| b <=> a }.map { |prefix| Parse.string(prefix) }.reduce { |p1, p2| p1 | p2 }.map &.reverse
+    Prefix.all.map(&.symbol.reverse).sort! { |a, b| b.size <=> a.size }.map { |prefix| Parse.string(prefix) }.reduce { |p1, p2| p1 | p2 }.map &.reverse
+  end
+
+  class_getter remaining_chars : Pars::Parser(String) do
+    ((Parse.char_if { true }) * (0..1)).map &.join
   end
 
   def self.atom(mode : Mode = Mode::PrimaryCode)
@@ -44,13 +48,13 @@ module Units::ExpressionParser
 
     case mode
     in .primary_code?
-      all.map(&.primary_code.reverse).sort! { |a, b| b <=> a }.map { |atom| Parse.string(atom) }.reduce { |p1, p2| p1 | p2 }.map &.reverse
+      all.map(&.primary_code.reverse).sort! { |a, b| b.size <=> a.size }.map { |atom| Parse.string(atom) }.reduce { |p1, p2| p1 | p2 }.map &.reverse
     in .secondary_code?
-      all.map(&.secondary_code.reverse).sort! { |a, b| b <=> a }.map { |atom| Parse.string(atom) }.reduce { |p1, p2| p1 | p2 }.map &.reverse
+      all.map(&.secondary_code.reverse).sort! { |a, b| b.size <=> a.size }.map { |atom| Parse.string(atom) }.reduce { |p1, p2| p1 | p2 }.map &.reverse
     in .symbol?
-      all.compact_map(&.symbol.try(&.reverse)).sort! { |a, b| b <=> a }.map { |atom| Parse.string(atom) }.reduce { |p1, p2| p1 | p2 }.map &.reverse
+      all.compact_map(&.symbol.try(&.reverse)).sort! { |a, b| b.size <=> a.size }.map { |atom| Parse.string(atom) }.reduce { |p1, p2| p1 | p2 }.map &.reverse
     in .name?
-      all.map(&.name.first.reverse).sort! { |a, b| b <=> a }.map { |atom| Parse.string(atom) }.reduce { |p1, p2| p1 | p2 }.map &.reverse
+      all.map(&.name.first.reverse).sort! { |a, b| b.size <=> a.size }.map { |atom| Parse.string(atom) }.reduce { |p1, p2| p1 | p2 }.map &.reverse
     end
   end
 
@@ -61,10 +65,10 @@ module Units::ExpressionParser
     rev_term = term.reverse
 
     # terms can be an number all on their own
-    check_number = number &+ ((Parse.char_if { true }) * (0..1))
+    check_number = number &+ remaining_chars
     number_result = check_number.parse(rev_term)
     if !number_result.is_a?(Pars::ParseError)
-      if number_result[1].first?.nil?
+      if number_result[-1].empty? # ensure there are no remaining_chars
         return Term.new(factor: number_result[0], exponent: op.divide? ? -1 : 1)
       end
     end
@@ -81,10 +85,11 @@ module Units::ExpressionParser
              in .name?
                prefix_name
              end
-    expression = (notation * (0..1)) &+ (integer * (0..1)) &+ atom &+ (prefix * (0..1)) &+ (integer * (0..1))
+    expression = (notation * (0..1)) &+ (integer * (0..1)) &+ atom &+ (prefix * (0..1)) &+ (integer * (0..1)) &+ remaining_chars
     result = expression.parse(rev_term)
     raise ExpressionError.new("failed to parse term '#{term}' with #{result}") if result.is_a?(Pars::ParseError)
-    notes, exponent, atom_string, prefix_arr, factor = result
+    notes, exponent, atom_string, prefix_arr, factor, remaining = result
+    raise ExpressionError.new("failed to parse term '#{term}', left over characters #{remaining}") if remaining.presence
 
     # NOTE:: This fails to handle things like `kg/s-1` (not sure if this is really required)
     exponent_value = exponent.first? || 1

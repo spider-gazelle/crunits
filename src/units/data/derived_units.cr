@@ -494,22 +494,6 @@ module Units
   )
 
   register(
-    name: ["gon", "grade"],
-    symbol: "□<sup>g</sup>",
-    primary_code: "gon",
-    secondary_code: "GON",
-    property: "plane angle",
-    scale: {
-      value: "0.9e0",
-      unit:  "deg",
-    },
-    metric: false,
-    special: false,
-    arbitrary: false,
-    classification: "iso1000"
-  )
-
-  register(
     name: "degree",
     symbol: "°",
     primary_code: "deg",
@@ -518,6 +502,22 @@ module Units
     scale: {
       value: "2",
       unit:  "[pi].rad/360",
+    },
+    metric: false,
+    special: false,
+    arbitrary: false,
+    classification: "iso1000"
+  )
+
+  register(
+    name: ["gon", "grade"],
+    symbol: "□<sup>g</sup>",
+    primary_code: "gon",
+    secondary_code: "GON",
+    property: "plane angle",
+    scale: {
+      value: "0.9e0",
+      unit:  "deg",
     },
     metric: false,
     special: false,
@@ -3916,7 +3916,7 @@ module Units
     property: "catalytic activity",
     scale: {
       value: "1",
-      unit:  "umol/min",
+      unit:  "mol/min",
     },
     metric: true,
     special: false,
@@ -4546,7 +4546,8 @@ module Units
     scale: {
       function_code: "two_lg",
       value:         "1",
-      unit:          "uV",
+      # TODO:: work out why it's not parsing "uV"
+      unit: Unit.new(Term.new(Atom.find("V"), Prefix::Micro)),
     },
     metric: true,
     special: true,

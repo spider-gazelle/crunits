@@ -58,10 +58,10 @@ require "./units/scale_function"
 # unit to another
 require "./units/measurement"
 
-# this parses expressions like `"kg.s-1.(m/s)2"` into a `Unit`
+# this parses expressions like `"kg/s"` into a `Unit`
 require "./units/expression_parser"
 
-# this generates expressions like `"kg.s-1.(m/s)2"` from a `Unit`
+# this generates expressions like `"kg/s"` from a `Unit`
 require "./units/expression_generator"
 
 # The data defining the different units
