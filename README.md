@@ -25,7 +25,7 @@ require "units"
 
 distance = Units::Measurement.new(0.25, "mile", :name)   # => #<Units::Measurement value=0.25 unit=[mi_i] (mile)>
 time     = Units::Measurement.new(10,   "second", :name) # => #<Units::Measurement value=10 unit=s (second)>
-mass     = Units::Measurement.new(2800, "kg", :name)     # => #<Units::Measurement value=2800 unit=kg (kilogram)>
+mass     = Units::Measurement.new(2800, "pound", :name)  # => #<Units::Measurement value=2800 unit=kg (kilogram)>
 
 acceleration =  distance * 2 / (time ** 2)
 # => #<Units::Measurement value=0.005 unit=[mi_i]/s2 (mile/second2)>
