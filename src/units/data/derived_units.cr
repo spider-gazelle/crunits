@@ -4687,7 +4687,7 @@ module Units
   )
 
   register(
-    name: "pound per sqare inch",
+    name: "pound-force per sqare inch",
     symbol: "psi",
     primary_code: "[psi]",
     secondary_code: "[PSI]",

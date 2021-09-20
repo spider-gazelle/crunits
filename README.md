@@ -21,7 +21,7 @@ mile in 10 seconds (with uniform acceleration).
 
 ```crystal
 
-require "units"
+require "crunits"
 
 distance = Units::Measurement.new(0.25, "mile", :name)   # => #<Units::Measurement value=0.25 unit=[mi_i] (mile)>
 time     = Units::Measurement.new(10,   "second", :name) # => #<Units::Measurement value=10 unit=s (second)>
