@@ -1,5 +1,5 @@
 name: crunits
-version: 1.1.0
+version: 1.1.1
 crystal: ">= 1.1.0"
 
 authors:
@@ -7,7 +7,7 @@ authors:
 
 dependencies:
   pars:
-    github: place-labs/pars
+    github: spider-gazelle/pars
 
 development_dependencies:
   ameba:
